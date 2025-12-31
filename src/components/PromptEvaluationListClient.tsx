@@ -32,6 +32,15 @@ export default function PromptEvaluationListPage() {
   const [data, setData] = useState<Evaluation[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") root.classList.add("dark");
+    else root.classList.remove("dark");
+  }, [theme]);
+
   // Fetch evaluations
   useEffect(() => {
     setLoading(true);
@@ -69,7 +78,16 @@ export default function PromptEvaluationListPage() {
               Evaluate prompts across multiple models using scoring rubrics
             </p>
           </div>
-
+          <div className="flex items-center gap-3">
+          <button
+              onClick={() =>
+                setTheme(theme === "dark" ? "light" : "dark")
+              }
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium
+                         bg-background text-foreground
+                         hover:bg-accent hover:text-accent-foreground transition">
+              {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+          </button>
           <button
             onClick={() =>
               router.push("/prompt-evaluation/new")
@@ -80,6 +98,7 @@ export default function PromptEvaluationListPage() {
           >
             + New Evaluation
           </button>
+         </div>
         </header>
 
         {/* Filters */}

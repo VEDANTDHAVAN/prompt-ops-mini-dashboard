@@ -1,6 +1,16 @@
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  
+    useEffect(() => {
+      const root = document.documentElement;
+      if (theme === "dark") root.classList.add("dark");
+      else root.classList.remove("dark");
+    }, [theme]);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
       <div className="max-w-xl w-full p-6 space-y-6">
@@ -12,6 +22,15 @@ export default function HomePage() {
           <p className="text-sm text-muted-foreground">
             Manage prompt migrations and evaluations across LLMs
           </p>
+           <button
+              onClick={() =>
+                setTheme(theme === "dark" ? "light" : "dark")
+              }
+              className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium
+                         bg-background text-foreground
+                         hover:bg-accent hover:text-accent-foreground transition">
+              {theme === "dark" ? "☀ Light" : "🌙 Dark"}
+          </button>
         </div>
 
         {/* Actions */}
