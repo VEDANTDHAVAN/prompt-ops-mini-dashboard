@@ -1,36 +1,199 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Prompt Ops Mini-Dashboard (Next.js)
 
-## Getting Started
+A lightweight **Prompt Operations dashboard** built with **Next.js App Router**, demonstrating how teams can **migrate prompts between models** and **evaluate prompt quality across multiple LLMs** using a clean, extensible workflow.
 
-First, run the development server:
+This project focuses on **system design, async workflows, and UX correctness**, rather than raw LLM performance.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✨ Features
+
+### Prompt Migration
+
+* Create prompt migration jobs between source and target models
+* Async job execution with lifecycle states:
+
+  * `DRAFT → RUNNING → COMPLETED`
+* Row-level loading indicators
+* Detail view showing source vs migrated prompts
+* Copy-to-clipboard for migrated prompts
+
+### Prompt Evaluation
+
+* Create evaluations across multiple models
+* Configurable **relative scoring weights** (clarity, specificity, safety)
+* Async evaluation runs:
+
+  * `QUEUED → RUNNING → DONE`
+* Rubric-based scoring (0–100)
+* Best-model highlighting
+* Export results as JSON (bonus)
+
+---
+
+## 🧱 Architecture Overview
+
+* **Next.js App Router** (v15+ compatible)
+* **Route Handlers** for API endpoints
+* **In-memory data store** (mocked persistence)
+* **Client components** for interactivity
+* **Reusable UI components**:
+
+  * `<DataTable />` (shared list layout)
+  * `<TableSkeleton />` (loading states)
+  * `<StatusBadge />`, `<Spinner />`
+* **tweakcn / shadcn-style theming** with semantic tokens
+
+---
+
+## 📁 Project Structure (Simplified)
+
+```
+src/
+├── app/
+│   ├── prompt-migration/
+│   │   ├── page.tsx
+│   │   ├── new/page.tsx
+│   │   └── [id]/page.tsx
+│   ├── prompt-evaluation/
+│   │   ├── page.tsx
+│   │   ├── new/page.tsx
+│   │   └── [id]/page.tsx
+│   └── api/
+│       ├── migrations/
+│       │   ├── route.ts
+│       │   └── [id]/
+|       |        ├── route.ts 
+|       |        └── start/route.ts
+|       |            
+│       └── evaluations/
+│       │   ├── route.ts
+│       │   └── [id]/
+|       |        ├── route.ts 
+|       |        └── run/route.ts
+├── components/
+│   ├── DataTable.tsx
+│   ├── TableSkeleton.tsx
+│   ├── StatusBadge.tsx
+|   ├── Pagination.tsx 
+│   └── Spinner.tsx
+├── lib/
+│   ├── models.ts
+|   ├── query.ts
+│   ├── scoring.ts
+|   ├── scoring.test.ts
+|   ├── store.ts
+│   └── utils.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔌 API Endpoints
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Prompt Migration
 
-## Learn More
+* `GET /api/migrations` — list migrations
+* `POST /api/migrations` — create migration
+* `GET /api/migrations/:id` — migration detail
+* `POST /api/migrations/:id/start` — start migration
 
-To learn more about Next.js, take a look at the following resources:
+### Prompt Evaluation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* `GET /api/evaluations` — list evaluations
+* `POST /api/evaluations` — create evaluation
+* `GET /api/evaluations/:id` — evaluation detail
+* `POST /api/evaluations/:id/run` — run evaluation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All async behavior is simulated to demonstrate workflow handling.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ⚖️ Scoring Logic (Prompt Evaluation)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+* Each criterion (clarity, specificity, safety) is scored in the range **60–100**
+* User inputs **relative importance weights**
+* Weights are **normalized internally**
+* Overall score is a weighted average in the range **0–100**
+
+This ensures:
+
+* Mathematical correctness
+* Intuitive UX
+* Reviewer-friendly explainability
+
+---
+
+## 🧪 Testing
+
+* Lightweight **Jest + ts-jest** setup
+* Focused unit tests for:
+
+  * Scoring normalization logic
+  * Query parameter utilities
+* Manual testing for all critical UI flows
+
+Example test coverage:
+
+* Overall score always within `0–100`
+* Query params update correctly
+
+This balances confidence without over-engineering.
+
+---
+
+## ♿ Accessibility
+
+* Semantic labels for all inputs
+* Keyboard-friendly forms
+* Accessible sliders for scoring weights
+* Clear focus states and readable empty/loading states
+
+---
+
+## 🚀 Deployment
+
+The application is deployed on **Vercel**.
+
+> **Note:**
+> This project uses **in-memory storage** for migrations and evaluations.
+> Data resets on redeploy or cold starts.
+> This is intentional for the scope of the assignment.
+
+In a production system, this layer would be replaced with persistent storage (e.g. PostgreSQL, Redis, or a job queue).
+
+---
+
+## ▶️ Demo Video (Optional)
+
+A short (1–2 minute) screencast demonstrates:
+
+1. Creating a prompt migration
+2. Running the migration and viewing results
+3. Creating a prompt evaluation
+4. Running evaluation and comparing model scores
+
+*(Link to video can be added here.)*
+
+---
+
+## 🧠 Design Decisions & Trade-offs
+
+* **In-memory store** instead of a database for simplicity
+* **Mocked async jobs** to focus on workflow and UX
+* **Selective abstraction** (DataTable, Skeletons) to avoid premature complexity
+* **Client-side polling** instead of WebSockets for clarity
+
+These choices keep the project focused, readable, and easy to extend.
+
+---
+
+## 🏁 Conclusion
+
+This mini-dashboard demonstrates:
+
+* Async job lifecycle handling
+* Clean Next.js App Router usage
+* Thoughtful UX and accessibility
+* Practical abstraction and testing discipline
+
+It is designed to be **easy to reason about**, **easy to review**, and **easy to extend**.

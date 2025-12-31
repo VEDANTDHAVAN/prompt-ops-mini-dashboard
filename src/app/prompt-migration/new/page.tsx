@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const MODELS = [
+export const MODELS = [
   "GPT-4.1",
   "GPT-5.2",
   "Claude 3.5",
